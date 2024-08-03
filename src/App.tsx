@@ -12,7 +12,7 @@ const PublicRoutes = () => {
   const { userInfo } = useAppStore();
   const isAuthenticated = !!userInfo;
   const location = useLocation();
-  return isAuthenticated && location.pathname === '/auth' ? userInfo.profileSetup ? <Navigate to="/chat" /> : <Navigate to="/profile" /> : <Outlet />;
+  return isAuthenticated && location.pathname === '/auth' ? <Navigate to="/profile" /> : <Outlet />;
 };
 
 const PrivateRoutes = () => {
@@ -27,10 +27,16 @@ function App() {
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const response = await apiCLient.get(GET_USER_INFO);
-        console.log(response);
+        const { data } = await apiCLient.get(GET_USER_INFO);
+        if (data.user.id) {
+          setUserInfo(data.user);
+        } else {
+          setUserInfo(null);
+        }
       } catch (error) {
-        console.log(error);
+        setUserInfo(null);
+      } finally {
+        setLoading(false);
       }
     };
     if (!userInfo) {
